@@ -1,13 +1,17 @@
 require("dotenv").config();
 
-const express = require("express");
-const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
 const cors = require("cors");
 
+const express = require("express");
 const app = express();
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
+
+const mongoose = require("mongoose");
+const login = require("./Module/userModule");
+
+const router = require("./Routers/routerMain");
+app.use(router);
 
 mongoose
   .connect(process.env.MONGO_URI)
@@ -31,55 +35,33 @@ function start_prg() {
   app.use(express.static(__dirname + "/FrontEnd"));
 }
 
-const Schema = mongoose.Schema;
-const LoginSchema = new Schema(
-  {
-    username: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    memoryList: [
-      {
-        memories: {
-          date: { type: String, default: "1" },
-          time: { type: String, default: "", trim: true },
-          privacy: { type: String, default: "", trim: true },
-          heading: { type: String, default: "", trim: true },
-          description: { type: String, default: "", trim: true },
-        },
-      },
-    ],
-  },
-  { timestamps: true }
-);
-
-let login = mongoose.model("login", LoginSchema);
-
 // api for login
-try {
-  app.post("/login", (req, res) => {
-    login
-      .findOne({ username: req.body.username })
-      .then((data) => {
-        if (data == null) {
-          res.send({ Auth: "Decline" });
-          console.log("Username not found");
-        } else if (data.password != req.body.password) {
-          console.log("Password Wrong");
-          res.send({ Auth: "Decline password" });
-        } else {
-          res.send({
-            Auth: "Success",
-            username: req.body.username,
-            password: req.body.password,
-          });
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  });
-} catch (err) {
-  console.log(err);
-}
+// try {
+//   app.post("/login", (req, res) => {
+//     login
+//       .findOne({ username: req.body.username })
+//       .then((data) => {
+//         if (data == null) {
+//           res.send({ Auth: "Decline" });
+//           console.log("Username not found");
+//         } else if (data.password != req.body.password) {
+//           console.log("Password Wrong");
+//           res.send({ Auth: "Decline password" });
+//         } else {
+//           res.send({
+//             Auth: "Success",
+//             username: req.body.username,
+//             password: req.body.password,
+//           });
+//         }
+//       })
+//       .catch((err) => {
+//         console.log(err);
+//       });
+//   });
+// } catch (err) {
+//   console.log(err);
+// }
 
 // api for signup
 try {
